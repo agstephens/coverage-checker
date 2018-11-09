@@ -12,20 +12,7 @@ from coverage_checker.coverage_checker import check_coverage
 from coverage_checker import cli
 
 
-@pytest.fixture
-def response():
-    """Sample pytest fixture.
-
-    See more at: http://doc.pytest.org/en/latest/fixture.html
-    """
-    # import requests
-    # return requests.get('https://github.com/audreyr/cookiecutter-pypackage')
-
-
-def test_content(response):
-    """Sample pytest test function with the pytest fixture as an argument."""
-    # from bs4 import BeautifulSoup
-    # assert 'GitHub' in BeautifulSoup(response.content).title.string
+TOP_DIR = 'top_dir'
 
 
 def test_command_line_interface():
@@ -39,35 +26,53 @@ def test_command_line_interface():
     assert '--help  Show this message and exit.' in help_result.output
 
 
+def _create_paths_and_enter_dir(tmpdir, items):
+
+    base = tmpdir.mkdir(TOP_DIR)
+    paths = []
+
+    for item in items:
+        _ = base.join(item)
+
+        # It is a file if '.' found in name
+        if '.' in _.basename:
+            _.write('data', ensure=True)
+        else:
+            _.ensure(dir=True)
+
+        paths.append(_)
+
+    os.chdir(base.dirname)
+    return paths
+
+
 def test_check_coverage_success_1(tmpdir):
-    top_dir = 'top_dir'
-    base = tmpdir.mkdir(top_dir)
     paths = ('a/b/c/d/1.dat', 'a/b/c/d/2.dat')
-    files = []
+    _create_paths_and_enter_dir(tmpdir, paths)
 
-    for path in paths:
-        files.append(base.join(path))
-        files[-1].write('data', ensure=True)
-
-    tmp_dir = str(files[0].realpath()).replace(os.path.join(top_dir, paths[0]), '')
-    os.chdir(tmp_dir)
-    resp = check_coverage(top_dir, depth=5)
+    resp = check_coverage(TOP_DIR, depth=5)
     assert(resp == [0, 0, 0, ''])
 
 
-def test_check_coverage_success_2(tmpdir):
-    top_dir = 'top_dir'
-    base = tmpdir.mkdir(top_dir)
-    paths = ('a1/b/c/d/1.dat', 'a2/b/c/d/2.dat')
-    files = []
+def test_check_coverage_fail_1_wrong_depth(tmpdir):
+    paths = ('a/b/c/d/1.dat', 'a/b/c/d/2.dat')
+    _create_paths_and_enter_dir(tmpdir, paths)
 
-    for path in paths:
-        files.append(base.join(path))
-        files[-1].write('data', ensure=True)
-
-    tmp_dir = str(files[0].realpath()).replace(os.path.join(top_dir, paths[0]), '')
-    os.chdir(tmp_dir)
-    resp = check_coverage(top_dir, depth=4)
-    assert(resp[0] == 2), resp
+    resp = check_coverage(TOP_DIR, depth=4)
+    assert(resp[0] == 1), resp
 
 
+def test_check_coverage_fail_2_different_depths(tmpdir):
+    paths = ('a/b/c/d/1.dat', 'a/b/c/d/2.dat', 'a/b/3.dat')
+    _create_paths_and_enter_dir(tmpdir, paths)
+
+    resp = check_coverage(TOP_DIR, depth=4)
+    assert(resp[0] == 1), resp
+
+
+def test_check_coverage_fail_3_empty_dir(tmpdir):
+    paths = ('a/b/c/d/1.dat', 'a/b/c/d/2.dat', 'a/b/z')
+    _create_paths_and_enter_dir(tmpdir, paths)
+
+    resp = check_coverage(TOP_DIR, depth=5)
+    assert(resp[2] == 1), resp

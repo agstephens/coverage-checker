@@ -57,7 +57,6 @@ class DirScanner(object):
                 self.files.append(path)
 
         if not subdirs_found and not self.ignore_dirs:
-            print("LLLL {}".format(dr))
             self.dirs.append(dr)
 
 
