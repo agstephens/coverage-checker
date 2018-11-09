@@ -2,6 +2,7 @@
 
 """Main module."""
 
+import re
 import os
 import os.path as op
 
@@ -15,7 +16,8 @@ class DirScanner(object):
         if not op.isdir(top_dir):
             raise Exception('Top-level item is not a valid directory: {}'.format(top_dir))
 
-        self.ignores = ignores or []
+        if not ignores: ignores = []
+        self.ignores = [re.compile(pattn) for pattn in ignores]
         self.ignore_symlinks = ignore_symlinks
         self.ignore_files = ignore_files
         self.ignore_dirs = ignore_dirs
@@ -27,6 +29,12 @@ class DirScanner(object):
 
         self._scan(top_dir)
         self._sort_results()
+
+
+    def _do_ignore(self, item):
+        for pattn in self.ignores:
+            if pattn.match(item):
+                return True
 
 
     def _scan(self, dr):
@@ -41,7 +49,7 @@ class DirScanner(object):
         subdirs_found = False
 
         for item in items:
-            if item in self.ignores:
+            if self._do_ignore(item):
                 continue
 
             path = op.join(dr, item)
@@ -78,7 +86,8 @@ def _get_files_and_dirs(top_dir, ignores=None, ignore_symlinks=False, ignore_fil
 def check_coverage(top_dir, depth, ignores=None, ignore_symlinks=False, ignore_files=False,
                    ignore_dirs=False, ignore_empty_dirs=False):
     files, end_dirs, empty_dirs = _get_files_and_dirs(top_dir, ignores=ignores, ignore_symlinks=ignore_symlinks,
-                                            ignore_files=ignore_files, ignore_dirs=ignore_dirs)
+                                                      ignore_files=ignore_files, ignore_dirs=ignore_dirs,
+                                                      ignore_empty_dirs=ignore_empty_dirs)
 
     dir_errors = []
     file_errors = []

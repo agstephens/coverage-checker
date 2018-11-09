@@ -13,6 +13,16 @@ from coverage_checker import cli
 
 
 TOP_DIR = 'top_dir'
+SYMLINK_TARGET = '/tmp/test-symlink'
+
+
+def setup():
+    with open(SYMLINK_TARGET, 'w') as writer:
+        writer.write('hi')
+
+
+def teardown():
+    os.remove(SYMLINK_TARGET)
 
 
 def test_command_line_interface():
@@ -35,7 +45,9 @@ def _create_paths_and_enter_dir(tmpdir, items):
         _ = base.join(item)
 
         # It is a file if '.' found in name
-        if '.' in _.basename:
+        if _.basename == 'symlink':
+            _.mksymlinkto(SYMLINK_TARGET)
+        elif '.' in _.basename:
             _.write('data', ensure=True)
         else:
             _.ensure(dir=True)
@@ -51,6 +63,38 @@ def test_check_coverage_success_1(tmpdir):
     _create_paths_and_enter_dir(tmpdir, paths)
 
     resp = check_coverage(TOP_DIR, depth=5)
+    assert(resp == [0, 0, 0, ''])
+
+
+def test_check_coverage_success_2_ignore_empty_dir(tmpdir):
+    paths = ('a/b/c/d/1.dat', 'a/b/c/d/2.dat', 'a/b/z')
+    _create_paths_and_enter_dir(tmpdir, paths)
+
+    resp = check_coverage(TOP_DIR, depth=5, ignore_empty_dirs=True)
+    assert(resp == [0, 0, 0, ''])
+
+
+def test_check_coverage_success_3_ignore_symlink(tmpdir):
+    paths = ('a/b/c/d/1.dat', 'a/b/c/d/2.dat', 'a/b/symlink')
+    _create_paths_and_enter_dir(tmpdir, paths)
+
+    resp = check_coverage(TOP_DIR, depth=5, ignore_symlinks=True)
+    assert(resp == [0, 0, 0, ''])
+
+
+def test_check_coverage_success_4_ignore_file(tmpdir):
+    paths = ('a/b/c/d/1.dat', 'a/b/c/d/2.dat', 'a/b/bad.txt')
+    _create_paths_and_enter_dir(tmpdir, paths)
+
+    resp = check_coverage(TOP_DIR, depth=5, ignore_files=True)
+    assert(resp == [0, 0, 0, ''])
+
+
+def test_check_coverage_success_5_ignore_patterns(tmpdir):
+    paths = ('a/b/c/d/1.dat', 'a/b/c/d/2.dat', 'a/b/bad.txt', 'random')
+    _create_paths_and_enter_dir(tmpdir, paths)
+
+    resp = check_coverage(TOP_DIR, depth=5, ignores=('bad.*', 'ran.om'))
     assert(resp == [0, 0, 0, ''])
 
 
@@ -76,3 +120,11 @@ def test_check_coverage_fail_3_empty_dir(tmpdir):
 
     resp = check_coverage(TOP_DIR, depth=5)
     assert(resp[2] == 1), resp
+
+
+def test_check_coverage_fail_4_ignore_patterns(tmpdir):
+    paths = ('a/b/c/d/1.dat', 'a/b/c/d/2.dat', 'a/b/bad.txt', 'random')
+    _create_paths_and_enter_dir(tmpdir, paths)
+
+    resp = check_coverage(TOP_DIR, depth=5, ignores=('bad.*', 'ran.kom'))
+    assert(resp[:3] == [0, 0, 1]), resp
