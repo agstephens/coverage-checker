@@ -3,11 +3,11 @@ Coverage Checker
 ================
 
 
-.. image:: https://img.shields.io/pypi/v/coverage_checker.svg
-        :target: https://pypi.python.org/pypi/coverage_checker
+.. image:: https://img.shields.io/pypi/v/coverage-checker.svg
+        :target: https://pypi.python.org/pypi/coverage-checker
 
-.. image:: https://img.shields.io/travis/agstephens/coverage_checker.svg
-        :target: https://travis-ci.org/agstephens/coverage_checker
+.. image:: https://img.shields.io/travis/agstephens/coverage-checker.svg
+        :target: https://travis-ci.org/agstephens/coverage-checker
 
 .. image:: https://readthedocs.org/projects/coverage-checker/badge/?version=latest
         :target: https://coverage-checker.readthedocs.io/en/latest/?badge=latest

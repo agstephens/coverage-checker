@@ -4,17 +4,22 @@
 
 import os
 
-from coverage_checker.utils import _get_files_and_dirs
+from coverage_checker.utils import get_files_and_dirs
 
 
-def check_coverage(top_dir, depth, ignores=None, ignore_symlinks=False, ignore_files=False,
-                   ignore_dirs=False, ignore_empty_dirs=False):
-    files, end_dirs, empty_dirs = _get_files_and_dirs(top_dir, ignores=ignores, ignore_symlinks=ignore_symlinks,
-                                                      ignore_files=ignore_files, ignore_dirs=ignore_dirs,
-                                                      ignore_empty_dirs=ignore_empty_dirs)
+def check_uniformity(top_dir, file_template, path_facets, ignores=None, ignore_symlinks=False,
+                     ignore_files=False, ignore_dirs=False, ignore_empty_dirs=False):
+
+    files, end_dirs, empty_dirs = get_files_and_dirs(top_dir, ignores=ignores, ignore_symlinks=ignore_symlinks,
+                                                     ignore_files=ignore_files, ignore_dirs=ignore_dirs,
+                                                     ignore_empty_dirs=ignore_empty_dirs)
 
     dir_errors = []
     file_errors = []
+
+    # Checking order
+    # 1. Check for all missing directories at each facet level
+    # 2. Check for all missing files
 
     for dr in end_dirs:
         items = dr.strip(os.sep).split(os.sep)
@@ -23,6 +28,7 @@ def check_coverage(top_dir, depth, ignores=None, ignore_symlinks=False, ignore_f
             dir_errors.append(dr)
 
     for fpath in files:
+        log.warning('TODO: Not yet checking files here!!!')
         if 0:
             file_errors.append(fpath)
 

@@ -19,7 +19,7 @@ test_requirements = ['pytest', ]
 
 setup(
     author="Ag Stephens",
-    author_email='ag.tephstephens@stfc.ac.uk',
+    author_email='ag.stephens@stfc.ac.uk',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
@@ -36,20 +36,20 @@ setup(
     description="Coverage checker for uniformity of directory structure",
     entry_points={
         'console_scripts': [
-            'coverage_checker=coverage_checker.cli:main',
+            'coverage-checker=coverage_checker.cli:main',
         ],
     },
     install_requires=requirements,
     license="BSD license",
     long_description=readme + '\n\n' + history,
     include_package_data=True,
-    keywords='coverage_checker',
-    name='coverage_checker',
+    keywords='coverage-checker',
+    name='coverage-checker',
     packages=find_packages(include=['coverage_checker']),
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
-    url='https://github.com/agstephens/coverage_checker',
+    url='https://github.com/agstephens/coverage-checker',
     version='0.1.0',
     zip_safe=False,
 )

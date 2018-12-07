@@ -1,2 +1,2 @@
-# coverage_checker
+# coverage-checker
 Coverage checker for uniformity of directory structure

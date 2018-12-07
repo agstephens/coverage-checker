@@ -5,7 +5,7 @@ Credits
 Development Lead
 ----------------
 
-* Ag Stephens <ag.tephstephens@stfc.ac.uk>
+* Ag Stephens <ag.stephens@stfc.ac.uk>
 
 Contributors
 ------------
